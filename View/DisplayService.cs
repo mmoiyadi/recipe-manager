@@ -63,11 +63,8 @@ namespace RecipeManager.View
             AnsiConsole.Write(grid);
         }
 
-        public Recipe GetRecipeFromUser()
+        private List<Ingredient> GetIngredientsFromUser()
         {
-            Recipe recipe = new Recipe();
-            var title = AnsiConsole.Ask<string>("Give [green]Title [/]to your recipe?");
-            recipe.Title = title;
             var ingredients = new List<Ingredient>
             {
                 AddIngredient("Name of the ingredient?", "Select units", "Quanity?")
@@ -77,8 +74,11 @@ namespace RecipeManager.View
             {
                 ingredients.Add(AddIngredient("Name of the ingredient?", "Select units", "Quantity?"));
             }
-            recipe.Ingredients = ingredients;
+            return ingredients;
+        }
 
+        private List<string> GetInstructionsFromUser()
+        {
             var instructions = new List<string>
             {
                 AddInstruction()
@@ -87,10 +87,32 @@ namespace RecipeManager.View
             {
                 instructions.Add(AddInstruction());
             }
-            recipe.Instructions = instructions;
+            return instructions;
+        }
+
+        private static Category GetCategoryFromUser()
+        {
+            var categories = Enum.GetValues(typeof(Category)).Cast<Category>().ToDictionary(x => x.ToString(), v => (int)v);
+            var categorySelected = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title("Select a category")
+                .PageSize(10)
+                .AddChoices(categories.Select(x => x.Key).ToArray())
+                .WrapAround(true));
+            return (Category)categories[categorySelected]; ;
+        }
+
+        public Recipe GetRecipeFromUser()
+        {
+            Recipe recipe = new()
+            {
+                Title = AnsiConsole.Ask<string>("Give [green]Title [/]to your recipe?"),
+                Ingredients = GetIngredientsFromUser(),
+                Instructions = GetInstructionsFromUser(),
+                Category = GetCategoryFromUser()
+            };
             
-            recipe.Category = GetCategoryFromUser();
             var recipeText = JsonSerializer.Serialize(recipe);
+            AnsiConsole.Markup("[green]Recipe created[/]");
             var json = new JsonText(recipeText);
             AnsiConsole.Write(
             new Panel(json)
@@ -102,20 +124,8 @@ namespace RecipeManager.View
             return recipe;
         }
 
-        private Category GetCategoryFromUser()
-        {
-            var categories = Enum.GetValues(typeof(Category)).Cast<Category>().ToDictionary(x => x.ToString(), v => (int)v);
-            var categorySelected = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                .Title("Select a category")
-                .PageSize(10)
-                .AddChoices(categories.Select(x => x.Key).ToArray())
-                .WrapAround(true));
-            return (Category)categories[categorySelected]; ;
-        }
-
         public UserSelection GetUserSelection()
         {
-            //AnsiConsole.Markup("Welcome to [underline blue]Recipe Manager[/]!");
             UserSelection selection = AnsiConsole.Prompt(
                 new SelectionPrompt<UserSelection>()
                 .Title("What would you like to do?")
@@ -165,12 +175,12 @@ namespace RecipeManager.View
             return x.Title;
         }
 
-        private bool MoreIngredients()
+        private static bool MoreIngredients()
         {
             return AnsiConsole.Confirm("Add more ingredients?");
         }
 
-        private bool MoreInstructions()
+        private static bool MoreInstructions()
         {
             return AnsiConsole.Confirm("Add more instruction?");
         }
@@ -197,7 +207,7 @@ namespace RecipeManager.View
             return ingredient;
         }
 
-        private string AddInstruction()
+        private static string AddInstruction()
         {
             return AnsiConsole.Ask<string>("Enter next step:");
         }
@@ -225,11 +235,10 @@ namespace RecipeManager.View
             foreach(var ingredient in recipe.Ingredients)
             {
                 var newIngredient = ingredient;
-                if(AnsiConsole.Confirm($"{ingredient.ToString()}. Want to change this ingredient? "))
+                if(AnsiConsole.Confirm($"{ingredient}. Want to change this ingredient? "))
                 {
                     newIngredient = AddIngredient("Name of the ingredient?", "Select units", "Quanity?");
                 }
-
                 newIngredients.Add(newIngredient);
                 
             }
