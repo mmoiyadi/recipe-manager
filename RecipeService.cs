@@ -48,6 +48,17 @@ namespace RecipeManager
             
         }
 
+        void AddCategory()
+        {
+            try { 
+                throw new NotImplementedException("This functionality is not yet implemented. Please select another option.");
+            }catch(Exception ex)
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenPaths | ExceptionFormats.ShortenTypes |
+    ExceptionFormats.ShortenMethods | ExceptionFormats.ShowLinks);
+            }
+        }
+
         public void Run()
         {
             
@@ -73,7 +84,7 @@ namespace RecipeManager
                         EditRecipe();
                         break;
                     case UserSelection.AddCategory:
-                        AnsiConsole.WriteLine("Enter Title:");
+                        AddCategory();
                         break;
                     case UserSelection.Exit:
                         var ruleExit = new Rule("Hope you enjoyed [underline blue]Recipe Manager[/]. Good Bye!!!")
