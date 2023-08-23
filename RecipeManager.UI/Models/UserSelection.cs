@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RecipeManager.Models
+namespace RecipeManager.UI.Models
 {
-    public enum  UserSelection
+    public enum UserSelection
     {
         ListRecipe,
         AddRecipe,

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RecipeManager.Models
+namespace RecipeManager.ViewModel
 {
-    public class Ingredient
+    public class IngredientViewModel
     {
         public string Name { get; set; }
         public double Quantity { get; set; }
