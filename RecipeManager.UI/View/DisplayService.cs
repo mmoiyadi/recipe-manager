@@ -98,6 +98,7 @@ namespace RecipeManager.UI
 
         public UserSelection GetUserSelection()
         {
+            AnsiConsole.WriteLine();
             UserSelection selection = AnsiConsole.Prompt(
                 new SelectionPrompt<UserSelection>()
                 .Title("What would you like to do?")
@@ -119,26 +120,17 @@ namespace RecipeManager.UI
 
         public RecipeViewModel GetRecipeFromUser(IEnumerable<CategoryViewModel> categories)
         {
-            
+
             RecipeViewModel recipe = new()
             {
-                Title = AnsiConsole.Ask<string>("Give [green]Title [/]to your recipe?"),
+                Title = Ask<string>("Give a title for your recipe?"),
                 Ingredients = GetIngredientsFromUser(),
                 Instructions = GetInstructionsFromUser()
             };
             var categoryFromUser = GetCategoryFromUser(categories);
             recipe.CategoryId = categoryFromUser.Id;
             recipe.CategoryName = categoryFromUser.Name;
-            var recipeText = JsonSerializer.Serialize(recipe);
-            AnsiConsole.Markup("[green]Recipe created[/]");
-            /*var json = new JsonText(recipeText);
-            AnsiConsole.Write(
-            new Panel(json)
-                .Header($"Recipe for {recipe.Title}")
-                .Collapse()
-                .RoundedBorder()
-                .BorderColor(Color.Yellow));
-            */
+            
             return recipe;
         }
 
@@ -149,7 +141,7 @@ namespace RecipeManager.UI
                 AddIngredient("Name of the ingredient?", "Select units", "Quanity?")
             };
 
-            while (MoreIngredients())
+            while (AskForMore("Add more ingredients?"))
             {
                 ingredients.Add(AddIngredient("Name of the ingredient?", "Select units", "Quantity?"));
             }
@@ -162,7 +154,7 @@ namespace RecipeManager.UI
         {
             IngredientViewModel ingredient = new()
             {
-                Name = AnsiConsole.Ask<string>(titleMessage),
+                Name = Ask<string>(titleMessage),
 
                 Units = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -178,33 +170,27 @@ namespace RecipeManager.UI
             return ingredient;
         }
 
-        private static bool MoreIngredients()
+        public bool AskForMore(string message)
         {
-            return AnsiConsole.Confirm("Add more ingredients?");
+            return AnsiConsole.Confirm( message );
         }
 
-        private static List<string> GetInstructionsFromUser()
+
+        private  List<string> GetInstructionsFromUser()
         {
             var instructions = new List<string>
             {
-                AddInstruction()
+                Ask<string>("Enter next step:")
             };
-            while (MoreInstructions())
+            while (AskForMore("Add more instruction?"))
             {
-                instructions.Add(AddInstruction());
+                instructions.Add(Ask<string>("Enter next step:"));
             }
             return instructions;
         }
 
-        private static string AddInstruction()
-        {
-            return AnsiConsole.Ask<string>("Enter next step:");
-        }
 
-        private static bool MoreInstructions()
-        {
-            return AnsiConsole.Confirm("Add more instruction?");
-        }
+        
 
         private static CategoryViewModel GetCategoryFromUser(IEnumerable<CategoryViewModel> categories)
         {
@@ -219,10 +205,7 @@ namespace RecipeManager.UI
             return categorySelected;
         }
 
-        public int GetRecipeToEditFromUser()
-        {
-            return AnsiConsole.Ask<int>("Enter Id of the recipe to edit: ");
-        }
+        
 
         public RecipeViewModel GetUpdatedRecipeFromUser(RecipeViewModel recipe, 
                                                         IEnumerable<CategoryViewModel> categories)
@@ -230,7 +213,6 @@ namespace RecipeManager.UI
             string newTitle = AnsiConsole.Ask<string>("Title(press enter to accept)", recipe.Title);
             if (newTitle != recipe.Title)
             {
-                AnsiConsole.WriteLine($"New Title: {newTitle}");
                 recipe.Title = newTitle;
             }
             var newIngredients = new List<IngredientViewModel>();
@@ -245,7 +227,7 @@ namespace RecipeManager.UI
                 newIngredients.Add(newIngredient);
 
             }
-            while (MoreIngredients())
+            while (AskForMore("Add more ingredients?"))
             {
                 newIngredients.Add(AddIngredient("Name of the ingredient?", "Select units", "Quantity?"));
             }
@@ -258,15 +240,15 @@ namespace RecipeManager.UI
                 AnsiConsole.Markup($"Current Instruction: [bold blue]{instruction}[/]. ");
                 if (AnsiConsole.Confirm("Want to change this instruction? "))
                 {
-                    newInstruction = AddInstruction();
+                    newInstruction = Ask<string>("Enter next step:");
                 }
 
                 newInstructions.Add(newInstruction);
 
             }
-            while (MoreInstructions())
+            while (AskForMore("Add more instruction?"))
             {
-                newInstructions.Add(AddInstruction());
+                newInstructions.Add(Ask<string>("Enter next step:"));
             }
             recipe.Instructions = newInstructions;
 
@@ -283,6 +265,46 @@ namespace RecipeManager.UI
             recipe.CategoryName = category.Name;
             recipe.CategoryId = category.Id;
             return recipe;
+        }
+
+        public T Ask<T>(string message)
+        {
+            return AnsiConsole.Ask<T>(message); 
+        }
+
+        public void ShowSuccessMessage(string message)
+        {
+            AnsiConsole.Markup($"[green bold]{message}[/]");
+        }
+
+        public void ShowErrorMessage(string message)
+        {
+            AnsiConsole.Markup($"[red]{message}[/]");
+            AnsiConsole.WriteLine();
+        }
+
+        public void ShowAdminMessage(string message)
+        {
+            AnsiConsole.Markup($"[darkorange3_1 bold]{message}[/]");
+            AnsiConsole.WriteLine();
+        }
+
+        public void ShowAppTitle(string message)
+        {
+            AnsiConsole.Write(new FigletText(message).Centered().Color(Color.Purple4));
+        }
+
+        public void ShowExitMessage(string message)
+        {
+            var ruleExit = new Rule(message)
+            {
+                Style = Style.Parse("invert")
+            };
+            AnsiConsole.Write(ruleExit);
+        }
+        public void ShowExceptionMessage(Exception ex) 
+        {
+            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything | ExceptionFormats.ShowLinks);
         }
     }
 }

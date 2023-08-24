@@ -27,17 +27,13 @@ namespace RecipeManager.UI
         }
         private async Task Run()
         {
+            
             try
             {
-                var ruleTitle = new Rule("[underline blue]Recipe Manager[/]")
-                {
-                    Style = Style.Parse("blue dim")
-                };
-                AnsiConsole.Write(ruleTitle);
+                _displayService.ShowAppTitle("recipe-manager");
                 var selection = UserSelection.None;
                 while (selection != UserSelection.Exit)
                 {
-                    AnsiConsole.WriteLine();
                     selection = _displayService.GetUserSelection();
                     switch (selection)
                     {
@@ -54,11 +50,7 @@ namespace RecipeManager.UI
                             await AddCategory();
                             break;
                         case UserSelection.Exit:
-                            var ruleExit = new Rule("Hope you enjoyed [underline blue]Recipe Manager[/]. Good Bye!!!")
-                            {
-                                Style = Style.Parse("invert")
-                            };
-                            AnsiConsole.Write(ruleExit);
+                            _displayService.ShowExitMessage("Hope you enjoyed [underline blue]Recipe Manager[/]. Good Bye!!!");
                             Environment.Exit(0);
                             break;
                     }
@@ -66,11 +58,10 @@ namespace RecipeManager.UI
             }
             catch (Exception ex)
             {
-                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything | ExceptionFormats.ShowLinks);
+                _displayService.ShowExceptionMessage(ex);
             }
 
         }
-
 
 
         private async Task ListRecipes()
@@ -99,11 +90,13 @@ namespace RecipeManager.UI
             await client.PostAsJsonAsync<RecipeViewModel>(
                 _configuration.GetValue<string>("RecipeApiUrl"),
                 recipe);
+
+            _displayService.ShowSuccessMessage("Recipe created");
         }
 
         private async Task EditRecipe()
         {
-            var recipeId = _displayService.GetRecipeToEditFromUser();
+            var recipeId = _displayService.Ask<int>("Enter Id of the recipe to edit: ");
             var client = _httpClientFactory.CreateClient();
             var url = _configuration.GetValue<string>("RecipeApiUrl") + $"/{recipeId}";
             var response = await client.GetAsync(url);
@@ -117,31 +110,30 @@ namespace RecipeManager.UI
                     updatedRecipe);
                 if (updateResponse.IsSuccessStatusCode)
                 {
-                    AnsiConsole.Markup($"[green bold]Updated {updatedRecipe.Title}[/]");
+                    _displayService.ShowSuccessMessage($"Updated recipe {updatedRecipe.Title}");
                 }
                 else
                 {
-                    AnsiConsole.Markup("[red]Failed to update the recipe[/]");
+                    _displayService.ShowErrorMessage($"Failed to update the recipe");
                 }
             }
             else
             {
                 if(response.StatusCode == System.Net.HttpStatusCode.NotFound) 
                 {
-                    AnsiConsole.Markup($"[red bold]Recipe not found with Id: {recipeId}[/]");
+                    _displayService.ShowErrorMessage($"Recipe not found with Id: {recipeId}");
                 }
                 else
                 {
-                    AnsiConsole.Markup("[red bold]Server Error: Please try after sometime[/]");
+                    _displayService.ShowErrorMessage("Server Error: Please try after sometime");
                 }
             }
         }
 
         private async Task AddCategory()
         {
-            AnsiConsole.Markup("[darkorange3_1 bold] Note: This is an admin action[/]");
-            AnsiConsole.WriteLine();
-            var categoryName = AnsiConsole.Ask<string>("Enter the category you want to add?");
+            _displayService.ShowAdminMessage("Note: This is an admin action");
+            var categoryName = _displayService.Ask<string>("Enter the category you want to add?");
             var category = new CategoryViewModel
             {
                 Name = categoryName

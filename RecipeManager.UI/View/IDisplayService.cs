@@ -15,9 +15,19 @@ namespace RecipeManager.UI.View
 
         RecipeViewModel GetRecipeFromUser(IEnumerable<CategoryViewModel> categories);
 
-        int GetRecipeToEditFromUser();
-
         RecipeViewModel GetUpdatedRecipeFromUser(RecipeViewModel recipeViewModel, 
                                                 IEnumerable<CategoryViewModel> categories);
+
+        T Ask<T>(string message);
+        void ShowSuccessMessage(string message);
+        void ShowErrorMessage(string message);
+        void ShowAdminMessage(string message);
+        void ShowAppTitle(string message);
+        void ShowExitMessage(string message);
+
+        void ShowExceptionMessage(Exception ex);
+
+        bool AskForMore(string message);
+
     }
 }
