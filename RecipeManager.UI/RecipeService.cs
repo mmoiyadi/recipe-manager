@@ -30,7 +30,7 @@ namespace RecipeManager.UI
             
             try
             {
-                _displayService.ShowAppTitle("recipe-manager");
+                _displayService.ShowAppTitle(_configuration.GetValue<string>("AppTitle"));
                 var selection = UserSelection.None;
                 while (selection != UserSelection.Exit)
                 {
