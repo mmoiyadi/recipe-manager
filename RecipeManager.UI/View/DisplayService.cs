@@ -16,6 +16,13 @@ namespace RecipeManager.UI
         private readonly string[] Units = { "count", "tbsp", "cup", "kg", "gram", "litre" };
         public void DisplayRecipes(IEnumerable<RecipeViewModel> recipes)
         {
+            if (recipes.Count() == 0)
+            {
+                AnsiConsole.WriteLine();
+                AnsiConsole.Markup("[bold maroon on blue italic slowblink]Nothing to show here. Start by adding some recipes of your own.[/]");
+                AnsiConsole.WriteLine();
+                return;
+            }
             recipes = recipes.OrderBy(x => x.Id);
             var grid = new Grid();
 
@@ -31,6 +38,7 @@ namespace RecipeManager.UI
                 new Text("Instructions", new Style(Color.Yellow, Color.Black)).LeftJustified(),
                 new Text("Category", new Style(Color.Orange1, Color.Black)).LeftJustified()
             });
+            
             foreach (var recipe in recipes)
             {
                 var ingredientCol = new Grid();

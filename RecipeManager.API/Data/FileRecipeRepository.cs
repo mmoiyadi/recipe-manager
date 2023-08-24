@@ -26,12 +26,21 @@ namespace RecipeManager.API.Data
         {
             var recipes = GetRecipes().ToList();
 
-            int maxId = recipes.Max(x => x.Id);
-            recipe.Id = maxId + 1;
+            
+            recipe.Id = GetMax<Recipe>(recipes) + 1;
             recipes.Add(recipe);
 
             string text = JsonSerializer.Serialize(recipes);
             File.WriteAllText(_configuration.GetValue<string>("RecipeFilePath"), text);
+        }
+
+        private int GetMax<T>(List<T> list ) where T : Base
+        {
+            if(list.Count == 0)
+            {
+                return 0;
+            }
+            return list.Max(x => x.Id);
         }
 
         public void SaveRecipes(IEnumerable<Recipe> recipes)
@@ -65,8 +74,8 @@ namespace RecipeManager.API.Data
         {
             var categories = GetCategories().ToList();
 
-            int maxId = categories.Max(x => x.Id);
-            category.Id = maxId + 1;
+            
+            category.Id = GetMax<Category>(categories) + 1;
             categories.Add(category);
 
             string text = JsonSerializer.Serialize(categories);
