@@ -1,5 +1,6 @@
 using AutoMapper;
 using RecipeManager.API.Data;
+using RecipeManager.API.Middlewares;
 using RecipeManager.API.Models;
 using RecipeManager.ViewModel;
 
@@ -24,6 +25,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<TimerMiddleware>();
 
 app.MapGet("/categories", (IRecipeRepository repo, IMapper mapper) =>
 {
@@ -71,6 +73,7 @@ app.MapGet("/recipes", (IRecipeRepository repo,
             Instructions = mapper.Map<IEnumerable<string>>(recipe.Instructions)
         });
     }
+    
     return recipesVM;
 })
 .WithName("GetRecipes")

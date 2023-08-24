@@ -68,9 +68,13 @@ namespace RecipeManager.UI
         {
             
             var client = _httpClientFactory.CreateClient();
-            
-            var recipes = await client.GetFromJsonAsync<IEnumerable<RecipeViewModel>>(
-                _configuration.GetValue<string>("RecipeApiUrl"));
+
+            var recipes = await AnsiConsole.Status()
+                                    .StartAsync("Fetching recipes from server...", _ =>
+                                     {
+                                            return client.GetFromJsonAsync<IEnumerable<RecipeViewModel>>(
+                                            _configuration.GetValue<string>("RecipeApiUrl"));
+                                     });
             
             _displayService.DisplayRecipes(recipes);
         }
@@ -78,7 +82,8 @@ namespace RecipeManager.UI
         private async Task<IEnumerable<CategoryViewModel>> GetCategories()
         {
             var client = _httpClientFactory.CreateClient();
-            return await client.GetFromJsonAsync<IEnumerable<CategoryViewModel>>(_configuration.GetValue<string>("CategoriesApiUrl"));
+            return await AnsiConsole.Status()
+                            .StartAsync("Fetching categories from server...", _ => client.GetFromJsonAsync<IEnumerable<CategoryViewModel>>(_configuration.GetValue<string>("CategoriesApiUrl")));
         }
 
         private async Task AddRecipe()
@@ -86,11 +91,10 @@ namespace RecipeManager.UI
             var client = _httpClientFactory.CreateClient();
             var categories = await GetCategories();
             RecipeViewModel recipe = _displayService.GetRecipeFromUser(categories);
-            
-            await client.PostAsJsonAsync<RecipeViewModel>(
+            var response = await AnsiConsole.Status()
+                                .StartAsync("Adding recipe...", _ => client.PostAsJsonAsync<RecipeViewModel>(
                 _configuration.GetValue<string>("RecipeApiUrl"),
-                recipe);
-
+                recipe));
             _displayService.ShowSuccessMessage("Recipe created");
         }
 
@@ -99,15 +103,20 @@ namespace RecipeManager.UI
             var recipeId = _displayService.Ask<int>("Enter Id of the recipe to edit: ");
             var client = _httpClientFactory.CreateClient();
             var url = _configuration.GetValue<string>("RecipeApiUrl") + $"/{recipeId}";
-            var response = await client.GetAsync(url);
+            var response = await AnsiConsole.Status()
+                                    .StartAsync($"Fetching recipe with id {recipeId} from server",
+                                        _ => client.GetAsync(url));
             if (response.IsSuccessStatusCode)
             {
                 var recipe = await response.Content.ReadFromJsonAsync<RecipeViewModel>();
                 Console.WriteLine(recipe.Title);
                 var categories = await GetCategories();
                 var updatedRecipe = _displayService.GetUpdatedRecipeFromUser(recipe, categories);
-                var updateResponse = await client.PutAsJsonAsync<RecipeViewModel>(_configuration.GetValue<string>("RecipeApiUrl") +$"/{updatedRecipe.Id}",
-                    updatedRecipe);
+                var updateRecipeUrl = _configuration.GetValue<string>("RecipeApiUrl") + $"/{updatedRecipe.Id}";
+                var updateResponse = await AnsiConsole.Status()
+                                        .StartAsync("Updating recipe...", _ => client.PutAsJsonAsync<RecipeViewModel>(
+                                                        updateRecipeUrl,
+                                                        updatedRecipe));
                 if (updateResponse.IsSuccessStatusCode)
                 {
                     _displayService.ShowSuccessMessage($"Updated recipe {updatedRecipe.Title}");
