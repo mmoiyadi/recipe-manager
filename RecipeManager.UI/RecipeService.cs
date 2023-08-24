@@ -5,12 +5,13 @@ using RecipeManager.UI.Models;
 using RecipeManager.UI.View;
 using RecipeManager.ViewModel;
 using Spectre.Console;
+using System.Diagnostics;
 using System.Net.Http.Json;
 
 
 namespace RecipeManager.UI
 {
-    class RecipeService : IHostedService
+    class RecipeService : BackgroundService
     {
         private readonly IDisplayService _displayService;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -24,52 +25,50 @@ namespace RecipeManager.UI
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
         }
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            await Run();
-        }
-
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            AnsiConsole.Markup("Hope you enjoyed [underline blue]Recipe Manager[/]!");
-        }
-
         private async Task Run() 
         {
-            var ruleTitle = new Rule("Hello and Welcome to [underline blue]Recipe Manager[/]")
+            try
             {
-                Style = Style.Parse("blue dim")
-            };
-            AnsiConsole.Write(ruleTitle);
-            var selection = UserSelection.None;
-            while (selection != UserSelection.Exit)
-            {
-                AnsiConsole.WriteLine();
-                selection = _displayService.GetUserSelection();
-                switch (selection)
+                var ruleTitle = new Rule("[underline blue]Recipe Manager[/]")
                 {
-                    case UserSelection.ListRecipe:
-                        await ListRecipes();
-                        break;
-                    case UserSelection.AddRecipe:
-                        await AddRecipe();
-                        break;
-                    case UserSelection.EditRecipe:
-                        await EditRecipe();
-                        break;
-                    case UserSelection.AddCategory:
-                        await AddCategory();
-                        break;
-                    case UserSelection.Exit:
-                        var ruleExit = new Rule("Hope you enjoyed [underline blue]Recipe Manager[/]. Good Bye!!!")
-                        {
-                            Style = Style.Parse("invert")
-                        };
-                        AnsiConsole.Write(ruleExit);
-                        Environment.Exit(0);
-                        break;
+                    Style = Style.Parse("blue dim")
+                };
+                AnsiConsole.Write(ruleTitle);
+                var selection = UserSelection.None;
+                while (selection != UserSelection.Exit)
+                {
+                    AnsiConsole.WriteLine();
+                    selection = _displayService.GetUserSelection();
+                    switch (selection)
+                    {
+                        case UserSelection.ListRecipe:
+                            await ListRecipes();
+                            break;
+                        case UserSelection.AddRecipe:
+                            await AddRecipe();
+                            break;
+                        case UserSelection.EditRecipe:
+                            await EditRecipe();
+                            break;
+                        case UserSelection.AddCategory:
+                            await AddCategory();
+                            break;
+                        case UserSelection.Exit:
+                            var ruleExit = new Rule("Hope you enjoyed [underline blue]Recipe Manager[/]. Good Bye!!!")
+                            {
+                                Style = Style.Parse("invert")
+                            };
+                            AnsiConsole.Write(ruleExit);
+                            Environment.Exit(0);
+                            break;
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything | ExceptionFormats.ShowLinks);
+            }
+            
         }
 
         private async Task ListRecipes()
@@ -138,6 +137,8 @@ namespace RecipeManager.UI
 
         private async Task AddCategory()
         {
+            AnsiConsole.Markup("[darkorange3_1 bold] Note: This is an admin action[/]");
+            AnsiConsole.WriteLine();
             var categoryName = AnsiConsole.Ask<string>("Enter the category you want to add?");
             var category = new CategoryViewModel
             {
@@ -147,6 +148,16 @@ namespace RecipeManager.UI
             await client.PostAsJsonAsync<CategoryViewModel>(
                 _configuration.GetValue<string>("CategoriesApiUrl"),
                 category);
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Run();
+                await Task.Delay(2000, stoppingToken);
+            }
+            
         }
     }
 }
