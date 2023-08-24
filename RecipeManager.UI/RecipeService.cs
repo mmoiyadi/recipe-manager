@@ -27,48 +27,50 @@ namespace RecipeManager.UI
         }
         private async Task Run() 
         {
-            try
+            await Run();
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            AnsiConsole.Markup("Hope you enjoyed [underline blue]Recipe Manager[/]!");
+        }
+
+        private async Task Run() 
+        {
+            var ruleTitle = new Rule("Hello and Welcome to [underline blue]Recipe Manager[/]")
             {
-                var ruleTitle = new Rule("[underline blue]Recipe Manager[/]")
+                Style = Style.Parse("blue dim")
+            };
+            AnsiConsole.Write(ruleTitle);
+            var selection = UserSelection.None;
+            while (selection != UserSelection.Exit)
+            {
+                AnsiConsole.WriteLine();
+                selection = _displayService.GetUserSelection();
+                switch (selection)
                 {
-                    Style = Style.Parse("blue dim")
-                };
-                AnsiConsole.Write(ruleTitle);
-                var selection = UserSelection.None;
-                while (selection != UserSelection.Exit)
-                {
-                    AnsiConsole.WriteLine();
-                    selection = _displayService.GetUserSelection();
-                    switch (selection)
-                    {
-                        case UserSelection.ListRecipe:
-                            await ListRecipes();
-                            break;
-                        case UserSelection.AddRecipe:
-                            await AddRecipe();
-                            break;
-                        case UserSelection.EditRecipe:
-                            await EditRecipe();
-                            break;
-                        case UserSelection.AddCategory:
-                            await AddCategory();
-                            break;
-                        case UserSelection.Exit:
-                            var ruleExit = new Rule("Hope you enjoyed [underline blue]Recipe Manager[/]. Good Bye!!!")
-                            {
-                                Style = Style.Parse("invert")
-                            };
-                            AnsiConsole.Write(ruleExit);
-                            Environment.Exit(0);
-                            break;
-                    }
+                    case UserSelection.ListRecipe:
+                        await ListRecipes();
+                        break;
+                    case UserSelection.AddRecipe:
+                        await AddRecipe();
+                        break;
+                    case UserSelection.EditRecipe:
+                        await EditRecipe();
+                        break;
+                    case UserSelection.AddCategory:
+                        await AddCategory();
+                        break;
+                    case UserSelection.Exit:
+                        var ruleExit = new Rule("Hope you enjoyed [underline blue]Recipe Manager[/]. Good Bye!!!")
+                        {
+                            Style = Style.Parse("invert")
+                        };
+                        AnsiConsole.Write(ruleExit);
+                        Environment.Exit(0);
+                        break;
                 }
             }
-            catch (Exception ex)
-            {
-                AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything | ExceptionFormats.ShowLinks);
-            }
-            
         }
 
         private async Task ListRecipes()
