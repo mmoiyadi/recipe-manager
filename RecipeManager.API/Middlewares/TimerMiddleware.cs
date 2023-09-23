@@ -11,7 +11,7 @@ namespace RecipeManager.API.Middlewares
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            Thread.Sleep(2000); // mimic server slowness
+            Thread.Sleep(500); // mimic server slowness
 
             // Call the next delegate/middleware in the pipeline.
             await _next(context);

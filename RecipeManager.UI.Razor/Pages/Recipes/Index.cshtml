@@ -1,0 +1,72 @@
+﻿@page
+@model RecipeManager.UI.Razor.Pages.Recipes.IndexModel
+@{
+    ViewData["Title"] = "Recipes";
+}
+<h1>Recipe List</h1>
+<div>
+    <a asp-page="./Add" class="btn btn-outline-success">
+        <i class="fa-solid fa-plus"></i>
+        Create Recipe
+    </a>
+</div>
+
+<table class="table table-success">
+    
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Ingredients)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Recipes[0].Instructions)
+            </th>
+            <th>
+                @Html.DisplayName("Cuisine")
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model.Recipes)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    <ul class="list-group list-group-flush">
+                        @foreach(var ingredient in item.Ingredients)
+                        {
+                            <li class="list-group-item list-group-item-success">@ingredient.Name - @ingredient.Quantity @ingredient.Units </li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    <ol class="list-group">
+                        @foreach (var instruction in item.Instructions)
+                        {
+                            <li class="list-group-item list-group-item-success">@instruction</li>
+                        }
+                    </ol>
+                    
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => modelItem.CategoriesDict[item.CategoryId])
+                </td>
+                <td>
+                    <a 
+                        asp-page="./Edit" 
+                        asp-route-Id="@item.Id">
+                       <i class="fa-solid fa-pen-to-square"></i>
+                   </a>
+                </td>
+            </tr>
+            
+        }
+    </tbody>
+</table>
+

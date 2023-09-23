@@ -1,0 +1,131 @@
+﻿@page "{handler?}"
+@using RecipeManager.ViewModel
+@model EditModel
+@{
+    ViewData["Title"] = "Edit";
+    var unitList = new List<string> { "count", "tbsp", "cup", "kg", "gram", "litre" }.Select(x => new SelectListItem
+            {
+                Text = x,
+                Value = x
+            });
+}
+
+<h1>Edit @Model.Recipe.Title</h1>
+
+
+<hr/>
+<form method="post">
+<div class="container">
+    <div class="row">
+        
+            <div class="col-md-6">
+
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Recipe.Id" />
+
+
+                <div class="form-group">
+                    <label asp-for="Recipe.Title" class="control-label"></label>
+                    <input asp-for="Recipe.Title" class="form-control" />
+                    <span asp-validation-for="Recipe.Title" class="text-danger"></span>
+                </div>
+
+                <br />
+                <div class="form-group">
+                    <label asp-for="Recipe.Ingredients" class="control-label"></label>
+                    <ul>
+                        @for (int i = 0; i < @Model.Recipe.Ingredients.Count(); i++)
+                        {
+                            <li>
+                                <input value="@Model.Recipe.Ingredients[i].Name" placeholder="Name" asp-for="@Model.Recipe.Ingredients[i].Name" class="form-control" />
+                                <input value="@Model.Recipe.Ingredients[i].Quantity" placeholder="Quantity" asp-for="@Model.Recipe.Ingredients[i].Quantity" class="form-control" />
+                                @Html.DropDownListFor(m => m.Recipe.Ingredients[i].Units, unitList, "Select units")
+                                <button type="submit"
+                                        asp-page-handler="DeleteIngredient"
+                                        asp-route-index="@i"
+                                        class="btn btn-outline-danger btn-sm">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                    <button type="submit"
+                            asp-page-handler="Ingredient"
+                            class="btn btn-outline-dark">
+                        <i class="fa-solid fa-cart-plus fa-xl"></i>
+
+                        Add Ingredient
+                    </button>
+                    <span asp-validation-for="Recipe.Ingredients" class="text-danger"></span>
+                </div>
+                <br />
+
+
+                <div class="form-group">
+                    <button type="submit" asp-page-handler="Recipe" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Save
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Recipe.CategoryId" class="control-label">Cuisine</label>
+                    @Html.DropDownListFor(m => m.Recipe.CategoryId, Model.CategoriesVM.Select(x => new SelectListItem
+                    {
+                    Text = x.Name,
+                    Value = x.Id.ToString()
+                    }), "Select a cuisine")
+
+                </div>
+                <div class="form-group">
+                    <label asp-for="Recipe.Instructions" class="control-label"></label>
+                    <ol id="instructions-list">
+                        @for (int i = 0; i < @Model.Recipe.Instructions.Count(); i++)
+                        {
+                            <li>
+                                <input value="@Model.Recipe.Instructions[i]" asp-for="@Model.Recipe.Instructions[i]" class="form-control" />
+                                <button type="submit"
+                                        asp-page-handler="DeleteInstruction"
+                                        asp-route-index="@i"
+                                        class="btn btn-outline-danger btn-sm">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </li>
+
+
+                        }
+                    </ol>
+
+                    <button type="submit"
+                            asp-page-handler="Instruction"
+                            class="btn btn-outline-dark">
+                        <i class="fa-solid fa-file-circle-plus fa-xl"></i>
+                        Add Instruction
+                    </button>
+
+
+                    <span asp-validation-for="Recipe.Instructions" class="text-danger"></span>
+                </div>
+                
+                
+            </div>
+        
+
+
+    </div>
+</div>
+</form>
+
+
+<div>
+    <a class="btn btn-success" asp-page="./Index">
+        <i class="fa-solid fa-reply"></i>
+        Back to List
+    </a>
+</div>
+
+
+
+                    

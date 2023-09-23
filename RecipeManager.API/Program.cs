@@ -67,10 +67,10 @@ app.MapGet("/recipes", (IRecipeRepository repo,
         {
             Id = recipe.Id,
             Title = recipe.Title,
-            CategoryName = categories[recipe.Category].Name,
+            //CategoryName = categories[recipe.Category].Name,
             CategoryId = categories[recipe.Category].Id,
-            Ingredients = mapper.Map<IEnumerable<IngredientViewModel>>(recipe.Ingredients),
-            Instructions = mapper.Map<IEnumerable<string>>(recipe.Instructions)
+            Ingredients = mapper.Map<IList<IngredientViewModel>>(recipe.Ingredients),
+            Instructions = mapper.Map<IList<string>>(recipe.Instructions)
         });
     }
     
@@ -94,7 +94,7 @@ app.MapGet("/recipes/{recipeId}", (IRecipeRepository repo,
     }
     var recipeVM = mapper.Map<RecipeViewModel>(recipe);
     recipeVM.CategoryId = recipe.Category;
-    recipeVM.CategoryName = categories[recipe.Category].Name;
+    //recipeVM.CategoryName = categories[recipe.Category].Name;
     return Results.Ok(recipeVM);
     
 })

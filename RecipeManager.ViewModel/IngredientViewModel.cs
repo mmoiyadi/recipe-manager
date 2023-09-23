@@ -12,6 +12,7 @@ namespace RecipeManager.ViewModel
         public double Quantity { get; set; }
         public string Units { get; set; }
 
+
         public override string ToString()
         {
             return $"{Quantity} {Units} of {Name}";

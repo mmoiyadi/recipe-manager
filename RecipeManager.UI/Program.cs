@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using RecipeManager.UI;
 using RecipeManager.UI.View;
 
@@ -10,6 +11,8 @@ IHostEnvironment env = builder.Environment;
 
 builder.Services.AddHostedService<RecipeService>();
 builder.Services.AddHttpClient();
+
+builder.Logging.ClearProviders();
 
 builder.Services.AddScoped<IDisplayService, DisplayService>();
 
