@@ -11,26 +11,17 @@
 }
 
 <h1>Edit @Model.Recipe.Title</h1>
-
-
-<hr/>
+<hr />
 <form method="post">
-<div class="container">
-    <div class="row">
-        
+    <div class="container">
+        <div class="row">
             <div class="col-md-6">
-
-
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Recipe.Id" />
-
-
-                <div class="form-group">
+                <div class="form-group" style="display:flex">
                     <label asp-for="Recipe.Title" class="control-label"></label>
                     <input asp-for="Recipe.Title" class="form-control" />
                     <span asp-validation-for="Recipe.Title" class="text-danger"></span>
                 </div>
-
                 <br />
                 <div class="form-group">
                     <label asp-for="Recipe.Ingredients" class="control-label"></label>
@@ -47,28 +38,25 @@
                                         class="btn btn-outline-danger btn-sm">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
+                                <span class="text-danger" asp-validation-for="Recipe.Ingredients[i]"></span>
                             </li>
                         }
                     </ul>
+                    <span asp-validation-for="Recipe.Ingredients" class="text-danger"></span>
                     <button type="submit"
                             asp-page-handler="Ingredient"
                             class="btn btn-outline-dark">
                         <i class="fa-solid fa-cart-plus fa-xl"></i>
-
                         Add Ingredient
                     </button>
-                    <span asp-validation-for="Recipe.Ingredients" class="text-danger"></span>
                 </div>
                 <br />
-
-
                 <div class="form-group">
                     <button type="submit" asp-page-handler="Recipe" class="btn btn-primary">
                         <i class="fa-solid fa-floppy-disk"></i> Save
                     </button>
                 </div>
             </div>
-
             <div class="col-md-6">
                 <div class="form-group">
                     <label asp-for="Recipe.CategoryId" class="control-label">Cuisine</label>
@@ -77,8 +65,9 @@
                     Text = x.Name,
                     Value = x.Id.ToString()
                     }), "Select a cuisine")
-
+                    <span asp-validation-for="Recipe.CategoryId" class="text-danger"></span>
                 </div>
+                <br />
                 <div class="form-group">
                     <label asp-for="Recipe.Instructions" class="control-label"></label>
                     <ol id="instructions-list">
@@ -93,34 +82,25 @@
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </li>
-
-
                         }
                     </ol>
-
                     <button type="submit"
                             asp-page-handler="Instruction"
                             class="btn btn-outline-dark">
                         <i class="fa-solid fa-file-circle-plus fa-xl"></i>
                         Add Instruction
                     </button>
-
-
                     <span asp-validation-for="Recipe.Instructions" class="text-danger"></span>
                 </div>
-                
-                
             </div>
-        
-
-
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
     </div>
-</div>
 </form>
 
 
 <div>
-    <a class="btn btn-success" asp-page="./Index">
+    <a class="btn btn-outline-success" asp-page="./Index">
         <i class="fa-solid fa-reply"></i>
         Back to List
     </a>
@@ -128,4 +108,3 @@
 
 
 
-                    

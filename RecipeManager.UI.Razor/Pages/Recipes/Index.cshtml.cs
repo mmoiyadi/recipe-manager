@@ -43,6 +43,12 @@ namespace RecipeManager.UI.Razor.Pages.Recipes
             CategoriesDict = categories.ToDictionary(x=>x.Id, x=>x.Name);
         }
 
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        {
+            //await SetCategories();
+            return Page();
+        }
+
 
     }
 }

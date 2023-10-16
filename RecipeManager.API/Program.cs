@@ -130,5 +130,19 @@ app.MapPut("/recipes/{recipeId}",  (RecipeViewModel recipeVM,
 .WithDescription("Update the recipe with given Id")
 .WithOpenApi();
 
+app.MapDelete("/recipes/{recipeId}", (IRecipeRepository repo,
+                                     int recipeId,
+                                    IMapper mapper) =>
+{
+    
+    repo.DeleteRecipe(recipeId);
+
+    return Results.NoContent();
+})
+.WithName("DeleteRecipe")
+.WithDisplayName("Delete a recipe")
+.WithDescription("Delete the recipe with given Id")
+.WithOpenApi();
+
 app.Run();
 

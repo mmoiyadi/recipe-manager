@@ -13,6 +13,9 @@ namespace RecipeManager.UI.Razor.Pages.Recipes
         [BindProperty]
         public RecipeViewModel Recipe { get; set; } = default;
 
+        [BindProperty]
+        public IEnumerable<CategoryViewModel> CategoriesVM { get; set; }
+
         public SelectList? Categories { get; set; }
 
         public AddModel(IHttpClientFactory httpClientFactory,
@@ -24,9 +27,9 @@ namespace RecipeManager.UI.Razor.Pages.Recipes
         public async Task<IActionResult> OnGetAsync()
          {
             var client = _httpClientFactory.CreateClient();
-            var categories = await client.GetFromJsonAsync<IEnumerable<CategoryViewModel>>(
+            CategoriesVM = await client.GetFromJsonAsync<IEnumerable<CategoryViewModel>>(
                 _configuration.GetValue<string>("CategoriesApiUrl"));
-            Categories = new SelectList(categories, 
+            Categories = new SelectList(CategoriesVM, 
                                 nameof(CategoryViewModel.Id), 
                                 nameof(CategoryViewModel.Name));
             Recipe = new RecipeViewModel(){
@@ -47,12 +50,62 @@ namespace RecipeManager.UI.Razor.Pages.Recipes
         public async Task<IActionResult> OnPostAsync()
         {
             // Console.WriteLine(Recipe.Title);
-            
+            ModelState.Remove("CategoryName");
+
+            if (!ModelState.IsValid)
+            {
+                await SetCategories();
+                return Page();
+            }
             var client = _httpClientFactory.CreateClient();
             var createRecipeUrl = _configuration.GetValue<string>("RecipeApiUrl");
              await client.PostAsJsonAsync<RecipeViewModel>(createRecipeUrl,
                                                          Recipe);
             return RedirectToPage("./Index");
+        }
+
+        public async Task<IActionResult> OnPostIngredient()
+        {
+            await SetCategories();
+            Recipe.Ingredients.Add(new IngredientViewModel
+            {
+                Name = "",
+                Quantity = 0,
+                Units = ""
+            });
+            return Page();
+
+        }
+
+        public async Task<IActionResult> OnPostDeleteIngredient(int index)
+        {
+            await SetCategories();
+            Recipe.Ingredients.RemoveAt(index);
+            return Page();
+
+        }
+
+        public async Task<IActionResult> OnPostDeleteInstruction(int index)
+        {
+            await SetCategories();
+            Recipe.Instructions.RemoveAt(index);
+            return Page();
+
+        }
+
+
+        public async Task<IActionResult> OnPostInstruction()
+        {
+            await SetCategories();
+            Recipe.Instructions.Add("");
+            return Page();
+        }
+
+        private async Task SetCategories()
+        {
+            var client = _httpClientFactory.CreateClient();
+            CategoriesVM = await client.GetFromJsonAsync<IEnumerable<CategoryViewModel>>(
+                _configuration.GetValue<string>("CategoriesApiUrl"));
         }
     }
 }

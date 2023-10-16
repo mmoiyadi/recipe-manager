@@ -25,7 +25,7 @@ namespace RecipeManager.ViewModel
         //[Bindable(false)]
         //public string CategoryName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please select category")]
         public int CategoryId { get; set; }
     }
 }

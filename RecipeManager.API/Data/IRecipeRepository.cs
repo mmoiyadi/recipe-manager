@@ -13,5 +13,7 @@ namespace RecipeManager.API.Data
 
         IEnumerable<Category> GetCategories();
         void AddCategory(Category category);
+
+        void DeleteRecipe(int recipeId);
     }
 }

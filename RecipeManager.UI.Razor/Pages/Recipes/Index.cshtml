@@ -1,16 +1,18 @@
-﻿@page
+﻿@page "{handler?}"
 @model RecipeManager.UI.Razor.Pages.Recipes.IndexModel
 @{
     ViewData["Title"] = "Recipes";
 }
 <h1>Recipe List</h1>
 <div>
-    <a asp-page="./Add" class="btn btn-outline-success">
-        <i class="fa-solid fa-plus"></i>
-        Create Recipe
+    <a title="Create a recipe"
+        asp-page="./Add" 
+        class="btn btn-outline-success">
+            <i class="fa-solid fa-plus"></i>
+            Create Recipe
     </a>
 </div>
-
+<br />
 <table class="table table-success">
     
     <thead>
@@ -58,11 +60,18 @@
                     @Html.DisplayFor(modelItem => modelItem.CategoriesDict[item.CategoryId])
                 </td>
                 <td>
-                    <a 
+                    <a title="Edit recipe"
                         asp-page="./Edit" 
-                        asp-route-Id="@item.Id">
-                       <i class="fa-solid fa-pen-to-square"></i>
+                        asp-route-id="@item.Id">
+                        <i class="fa-solid  fa-pen-to-square"></i>
                    </a>
+                   &nbsp;
+                    <a  title="Delete recipe"
+                        asp-page="./Delete"
+                        asp-route-id="@item.Id">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                    
                 </td>
             </tr>
             

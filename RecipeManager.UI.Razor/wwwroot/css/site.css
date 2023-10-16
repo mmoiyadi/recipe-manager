@@ -19,6 +19,9 @@ html {
 
 body {
   margin-bottom: 60px;
+  font-family:  Verdana;
+  font-size: larger;
+
 }
 
 .button-ingredient{
@@ -27,4 +30,13 @@ body {
 
 li{
     display:flex
+}
+
+th{
+    text-align:center
+}
+
+td {
+    vertical-align: middle;
+    text-align: center
 }

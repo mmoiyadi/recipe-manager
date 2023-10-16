@@ -58,6 +58,14 @@ namespace RecipeManager.API.Data
             SaveRecipes(recipes);
         }
 
+        public void DeleteRecipe(int recipeId)
+        {
+            var recipes = GetRecipes().ToList();
+            var repoRecipe = recipes.Where(x => x.Id == recipeId).FirstOrDefault();
+            recipes.Remove(repoRecipe);
+            SaveRecipes(recipes);
+        }
+
         public IEnumerable<Category> GetCategories()
         {
             var categoriesFilePath = _configuration.GetValue<string>("CategoriesFilePath");

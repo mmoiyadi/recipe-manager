@@ -1,0 +1,23 @@
+﻿@page
+@model RecipeManager.UI.Razor.Pages.Recipes.DeleteModel
+@{
+}
+
+<h1>Delete @Model.Title</h1>
+
+<p>Do you really want to delete the recipe?</p>
+<form method="post">
+    <div class="form-group">
+        <button type="submit"
+                asp-page-handler="Delete"
+                asp-route-id="@Model.Id"
+                class="btn btn-outline-dark">
+            Yes
+        </button>
+        <a class="btn btn-info" asp-page="./Index">
+            <i class="fa-solid fa-reply"></i>
+            No
+        </a>
+    </div>
+    
+</form>
