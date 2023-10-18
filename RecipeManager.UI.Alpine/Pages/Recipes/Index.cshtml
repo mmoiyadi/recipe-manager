@@ -1,0 +1,101 @@
+﻿@page
+@model RecipeManager.UI.Alpine.Pages.Recipes.IndexModel
+@{
+}
+<h1 x-data="{ message: 'Alpine' }" x-text="message"></h1>
+<div x-data="{ count: 0 }">
+    <button x-on:click="count++">Increment</button>
+
+    <span x-text="count"></span>
+</div>
+<div x-data="{ open: false }">
+    <button x-on:click="open = ! open">Toggle</button>
+
+    <div x-show="open" x-on:click.outside="open = false">Contents...</div>
+</div>
+<div x-data="{
+     search: '' ,
+     items: ['foo', 'bar' , 'baz' ],
+     get filteredItems() {
+     return this.items.filter(
+     i=>
+    i.startsWith(this.search)
+    )
+    }
+    }"
+    >
+    <input x-model="search" placeholder="Search...">
+
+    <ul>
+        <template x-for="item in filteredItems" :key="item">
+            <li x-text="item"></li>
+        </template>
+    </ul>
+</div>
+<h2>Recipes</h2>
+<div x-data="{recipes: [], categories: []}" x-init="recipes = await (await fetch('https://localhost:7161/recipes')).json();categories = await (await fetch('https://localhost:7161/categories')).json()">
+    @* <ul>
+        <template x-for="item in recipes" :key="item">
+            <li x-text="item.title"></li>
+        </template>
+    </ul> *@
+    <table class="table table-success">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayName("Title")
+                </th>
+                <th>
+                    @Html.DisplayName("Ingredients")
+                </th>
+                <th>
+                    @Html.DisplayName("Instructions")
+                </th>
+                <th>
+                    @Html.DisplayName("Cuisine")
+                </th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template x-for="item in recipes" :key="item">
+                <tr>
+                    <td x-text="item.title">
+                        
+                    </td>
+                    <td x-data="{ingredients: item.ingredients}">
+                        <ul class="list-group list-group-flush">
+                            <template x-for="ingredient in ingredients" :key="ingredient">
+                                <li class="list-group-item list-group-item-success" x-text="ingredient.name + ' - ' + ingredient.quantity + ' ' + ingredient.units"></li>
+                            </template>
+                        </ul>
+                        
+                    </td>
+                    <td x-data="{instructions: item.instructions}">
+                        <ol class="list-group">
+                            <template x-for="instruction in instructions" :key="instruction">
+                                <li class="list-group-item list-group-item-success" x-text="instruction"></li>
+                            </template>
+                        </ol>
+
+                    </td>
+                    <td x-text="categories.find(c => c.id === item.categoryId).name">
+                        
+                    </td>
+                    <td>
+                        <a title="Edit recipe"
+                           
+                            <i class="fa-solid  fa-pen-to-square"></i>
+                        </a>
+                        &nbsp;
+                        <a title="Delete recipe"
+                           
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>
