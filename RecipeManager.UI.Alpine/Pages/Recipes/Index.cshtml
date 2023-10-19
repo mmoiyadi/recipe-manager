@@ -2,100 +2,215 @@
 @model RecipeManager.UI.Alpine.Pages.Recipes.IndexModel
 @{
 }
-<h1 x-data="{ message: 'Alpine' }" x-text="message"></h1>
-<div x-data="{ count: 0 }">
-    <button x-on:click="count++">Increment</button>
+<h1 x-data="{ message: 'Recipes' }" x-text="message"></h1>
+<div 
+    x-data="{
+                categories: []
+            }"
+    x-init="categories = await (await fetch('https://localhost:7161/categories')).json()">
+    <div x-data="{ open: false, showCreate: true }">
+        <button x-show="showCreate" x-on:click="open = ! open; showCreate = false" title="Create a recipe"
+                class="btn btn-outline-success">
+            <i class="fa-solid fa-plus"></i>
+            Create Recipe
+        </button>
+        <form x-data="{
+            title:'',
+            ingredients: [{name: '', quantity: 0, units: 'tbsp', id: 1}],
+            instructions: [{step:'', id: 1}],
+            category: 'Indian',
+            resetFormData(){
+                console.log('reset form');
+                this.ingredients = [{name: '', quantity: 0, units: 'tbsp', id: 1}];
+                this.title = '';
+                this.instructions = [{step:'', id: 1}];
+                this.category = 'Indian';
+            }
+        }"
+              x-show="open">
+            <div class="form-group"
+            @* style="display:flex" *@>
+                <label class="control-label">
+                    Title
+                </label>
+                <input class="form-control"
+                       x-model="title"
+                       placeholder="Enter Recipe Title..." />
+            </div>
+            <div class="form-group">
+                <label class="control-label">
+                    Ingredients
+                </label>
+                <ul>
+                    <template x-for="ingredient in ingredients" :key="ingredient.id">
+                        <li>
+                            <input x-model="ingredient.name"
+                                   placeholder="Name"
+                                   class="form-control" />
+                            <input x-model="ingredient.quantity"
+                                   placeholder="Quantity"
+                                   class="form-control" />
+                            <select x-model="ingredient.units">
+                                <template x-for="unit in ['count', 'tbsp', 'cup', 'kg', 'gram', 'litre']">
+                                    <option x-text="unit"></option>
+                                </template>
+                            </select>
+                        </li>
+                    </template>
+                </ul>
+                <button type="button"
+                        class="btn btn-outline-dark"
+                        x-on:click="let maxId = ingredients.length + 1;ingredients.push({name: '', quantity: 0, units: 'count', id: maxId})">
+                    <i class="fa-solid fa-cart-plus fa-xl"></i>
+                    Add Ingredient
+                </button>
+            </div>
+            <div class="form-group">
+                <label class="control-label">
+                    Instructions
+                </label>
+                <ol>
+                    <template x-for="instruction in instructions" :key="instruction.id">
+                        <li>
+                            <input x-model="instruction.step"
+                                   placeholder="Instruction"
+                                   class="form-control" />
+                        </li>
+                    </template>
+                </ol>
+                <button type="button"
+                        class="btn btn-outline-dark"
+                        x-on:click="let maxId = instructions.length + 1;instructions.push({step: '', id: maxId})">
+                    <i class="fa-solid fa-file-circle-plus fa-xl"></i>
+                    Add Instruction
+                </button>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Cuisine</label>
+                <select x-model="category">
+                    <template x-for="cat in categories">
+                        <option x-text="cat.name"></option>
+                    </template>
+                </select>
+            </div>
 
-    <span x-text="count"></span>
-</div>
-<div x-data="{ open: false }">
-    <button x-on:click="open = ! open">Toggle</button>
+            <div class="form-group">
+                <button x-on:click="open=false;
+                            showCreate=true;
+                            console.log('submit recipe with title', title);
+                            console.log(ingredients);
+                            console.log(instructions);
+                            console.log(category);
+                            console.log(categories);
+                            console.log('selected category id');
+                            let categoryId=categories.find(x =>
+                                x.name == category).id;
+                            console.log(categoryId);
+                            let data = {
+                                title: title,
+                                ingredients: ingredients,
+                                instructions: instructions.map(x => x.step),
+                                categoryId:categoryId
+                            }
+                            console.log(data);
+                            let response = await (await fetch('https://localhost:7161/recipes',
+                            {
+                                method: 'POST',
+                                mode: 'cors',
+                                cache: 'no-cache',
+                                credentials: 'include',
+                                headers: {
+                                'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            })).json();
+                            console.log(response);
+                            resetFormData();"
+                        type="button"
+                        class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Save
+                </button>
+                <button x-on:click="open=false;
+                            showCreate=true;
+                            resetFormData();"
+                        type="button"
+                        class="btn btn-outline">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+    <br />
+    <div x-data="{
+         search: '' ,
+         recipes: [],
+         get filteredRecipes() {
+             return this.recipes.filter(
+             i=> {
+                console.log(i.title.startsWith(this.search));
+                return i.title.startsWith(this.search);
+             })
+         }
+        }"
+        x-init="recipes = await (await fetch('https://localhost:7161/recipes')).json()">
 
-    <div x-show="open" x-on:click.outside="open = false">Contents...</div>
-</div>
-<div x-data="{
-     search: '' ,
-     items: ['foo', 'bar' , 'baz' ],
-     get filteredItems() {
-     return this.items.filter(
-     i=>
-    i.startsWith(this.search)
-    )
-    }
-    }"
-    >
-    <input x-model="search" placeholder="Search...">
-
-    <ul>
-        <template x-for="item in filteredItems" :key="item">
-            <li x-text="item"></li>
-        </template>
-    </ul>
-</div>
-<h2>Recipes</h2>
-<div x-data="{recipes: [], categories: []}" x-init="recipes = await (await fetch('https://localhost:7161/recipes')).json();categories = await (await fetch('https://localhost:7161/categories')).json()">
-    @* <ul>
-        <template x-for="item in recipes" :key="item">
-            <li x-text="item.title"></li>
-        </template>
-    </ul> *@
-    <table class="table table-success">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayName("Title")
-                </th>
-                <th>
-                    @Html.DisplayName("Ingredients")
-                </th>
-                <th>
-                    @Html.DisplayName("Instructions")
-                </th>
-                <th>
-                    @Html.DisplayName("Cuisine")
-                </th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <template x-for="item in recipes" :key="item">
+        <input x-model="search" placeholder="Search Recipes...">
+        <br />
+        <table class="table table-success">
+            <thead>
                 <tr>
-                    <td x-text="item.title">
-                        
-                    </td>
-                    <td x-data="{ingredients: item.ingredients}">
-                        <ul class="list-group list-group-flush">
-                            <template x-for="ingredient in ingredients" :key="ingredient">
-                                <li class="list-group-item list-group-item-success" x-text="ingredient.name + ' - ' + ingredient.quantity + ' ' + ingredient.units"></li>
-                            </template>
-                        </ul>
-                        
-                    </td>
-                    <td x-data="{instructions: item.instructions}">
-                        <ol class="list-group">
-                            <template x-for="instruction in instructions" :key="instruction">
-                                <li class="list-group-item list-group-item-success" x-text="instruction"></li>
-                            </template>
-                        </ol>
-
-                    </td>
-                    <td x-text="categories.find(c => c.id === item.categoryId).name">
-                        
-                    </td>
-                    <td>
-                        <a title="Edit recipe">
-                           edit
-                            <i class="fa-solid  fa-pen-to-square"></i>
-                        </a>
-                        &nbsp;
-                        <a title="Delete recipe">
-                           delete
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-
-                    </td>
+                    <th>
+                        @Html.DisplayName("Title")
+                    </th>
+                    <th>
+                        @Html.DisplayName("Ingredients")
+                    </th>
+                    <th>
+                        @Html.DisplayName("Instructions")
+                    </th>
+                    <th>
+                        @Html.DisplayName("Cuisine")
+                    </th>
+                    <th>Actions</th>
                 </tr>
-            </template>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <template x-for="item in filteredRecipes" :key="item.id">
+                    <tr>
+                        <td x-text="item.title">
+                        </td>
+                        <td x-data="{ingredients: item.ingredients}">
+                            <ul class="list-group list-group-flush">
+                                <template x-for="ingredient in ingredients" :key="ingredient">
+                                    <li class="list-group-item list-group-item-success" x-text="ingredient.name + ' - ' + ingredient.quantity + ' ' + ingredient.units"></li>
+                                </template>
+                            </ul>
+
+                        </td>
+                        <td x-data="{instructions: item.instructions}">
+                            <ol class="list-group">
+                                <template x-for="instruction in instructions" :key="instruction">
+                                    <li class="list-group-item list-group-item-success" x-text="instruction"></li>
+                                </template>
+                            </ol>
+
+                        </td>
+                        <td x-text="categories.find(c => c.id === item.categoryId).name">
+                        </td>
+                        <td>
+                            <a title="Edit recipe">
+                                <i class="fa-solid  fa-pen-to-square"></i>
+                            </a>
+                            &nbsp;
+                            <a title="Delete recipe">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
 </div>
